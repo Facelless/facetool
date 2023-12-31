@@ -15,6 +15,23 @@ function configHome() {
 
 }
 
+function sqlinject() {
+
+        echo ""
+        echo -n "Pressione Enter para ir a tela home do sql injection..."
+        read -n 1 key
+
+        case "$key" in
+        "")
+                clear
+                sqlmap
+                ;;
+        *)
+                echo "Você pressionou uma tecla diferente."
+                ;;
+        esac
+}
+
 function sqlmap() {
         clear
         echo -e ' \033[01;31m 
@@ -25,38 +42,61 @@ function sqlmap() {
         |____/   \__\_\ |_____|   |___| |_| |_|  _/ |  \___|  \___|  \__| |_|  \___/  |_| |_|\033[01;37m'
         echo ''
         echo -e '
-        \033[01;31m[1]\033[01;37m Searching DB         
-        \033[01;31m[2]\033[01;37m Query DB
-        \033[01;31m[3]\033[01;37m Query Tables in DB
-        \033[01;31m[4]\033[01;37m Query Dates in Tables
-        \033[01;31m[5]\033[01;37m exit
+        \033[01;31m[URLS]\033[01;37m                                    \033[01;31m[AQRUIVOS]\033[01;37m
+
+        \033[01;31m[1]\033[01;37m Searching DB                       \033[01;31m[5]\033[01;37m Searhing DB of archive                     \033[01;31m[9]\033[01;37m Exit
+        \033[01;31m[2]\033[01;37m Query DB                           \033[01;31m[6]\033[01;37m Query DB of archives
+        \033[01;31m[3]\033[01;37m Query Tables in DB                 \033[01;31m[7]\033[01;37m Query Tables in DB of archives
+        \033[01;31m[4]\033[01;37m Query Dates in Tables              \033[01;31m[8]\033[01;37m Query Dates in Tables
         '
         read -p '[root@root]=# ' n
         case $n in
                 1) 
                         read -p '[url]=# ' url
-                        python sqlmap.py -u $url --forms --crawl=2 -dbs
-                        sqlmap;;
+                        python sqlmap.py -u -r $url --forms --crawl=2 -dbs
+                        sqlinject;;
                 2) 
                         read -p '[url]=# ' url
                         read -p '[database]=# ' db
                         python sqlmap.py -u $url --forms --crawl=2 -D $db --tables
-                        sqlmap;;
+                        sqlinject;;
                 3)
                         read -p '[url]=# ' url
                         read -p '[database]=# ' db
                         read -p '[tables]=# ' table
                         python sqlmap.py -u $url --forms --crawl=2 -D $db -T $table --columns
-                        sqlmap;;
+                        sqlinject;;
                 4)
                         read -p '[url]=# ' url
                         read -p '[database]=# ' db
                         read -p '[tables]=# ' table
                         read -p '[dates]=# ' dates
                         python sqlmap.py -u $url --forms --crawl=2 -D $db -T $table -C $dates --dump
+                        sqlinject;;
+                5)      
+                        read -p '[filename]=# ' filename
+                        python sqlmap.py -r $filename -dbs
+                        sqlinject;;
+                6)
+                        read -p '[filename]=# ' filename
+                        read -p '[database]=# ' database
+                        python sqlmap.py -r $filename -D $database --tables
+                        sqlinject;;
+                7)
+                        read -p '[filename]=# ' filename
+                        read -p '[database]=# ' db
+                        read -p '[tables]=# ' table
+                        python sqlmap.py -r $filename -D $db -T $table --columns
+                        sqlinject;;
+                8)
+                        read -p '[filename]=# ' filename
+                        read -p '[database]=# ' db
+                        read -p '[tables]=# ' table
+                        read -p '[dates]=# ' dates
+                        python sqlmap.py -r $filename  -D $db -T $table -C $dates --dump
+                        sqlinject;;
+                9)
                         sqlmap;;
-                5)
-                        Init
         esac
         
 }
@@ -113,7 +153,7 @@ function Init() {
                                 systemctl status tor.service
                                 configHome;;
                         6)      
-                                sudo systemctl enable --now tor.service
+                                sudo systemctl disable --now tor.service
                                 systemctl status tor.service
                                 configHome;;
                         7) 
